@@ -45,16 +45,13 @@ public class Player {
         Messaging.writeBytes(outputStream, gson.toJson(gameboard));
     }
 
-
     public Player() {
-        name = "keks";
+
     }
 
     public Player(String name) {
         this.name = name;
     }
-
-
 
 
     //положить карту на стол

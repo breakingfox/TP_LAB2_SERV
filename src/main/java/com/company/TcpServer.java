@@ -24,12 +24,10 @@ public class TcpServer {
             Game game = new Game();
 
 
-            while (true) {
+            while (!player.getSocket().isClosed()) {
                 //отправили сообщение
                 player.send(game);
                 //получаем сообщение с клиента
-                Poop poop = player.read();
-                System.out.println(poop.poop);
             }
 
         } catch (IOException e) {
