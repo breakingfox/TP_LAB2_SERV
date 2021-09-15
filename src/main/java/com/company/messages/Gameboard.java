@@ -5,10 +5,11 @@ import java.util.Map;
 public class Gameboard {
     private String curPlayer;
     private String lastCard;
-    private String lastToldCard;
+    private String boardCard;
     private Map<String, Integer> cards;
     private Map<String, Integer> playerFirstCards;
     private Map<String, Integer> playerSecondCards;
+
 
     public String getCurPlayer() {
         return curPlayer;
@@ -18,12 +19,12 @@ public class Gameboard {
         this.curPlayer = curPlayer;
     }
 
-    public String getLastToldCard() {
-        return lastToldCard;
+    public String getBoardCard() {
+        return boardCard;
     }
 
-    public void setLastToldCard(String lastToldCard) {
-        this.lastToldCard = lastToldCard;
+    public void setBoardCard(String boardCard) {
+        this.boardCard = boardCard;
     }
 
     public Map<String, Integer> getPlayerFirstCards() {

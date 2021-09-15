@@ -1,6 +1,8 @@
 package com.company;
 
 import com.company.messages.Gameboard;
+import com.company.messages.Move;
+import com.company.messages.Position;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -18,40 +20,87 @@ public class Player {
     private InputStream inputStream;
     private Socket socket;
 
-    public void waitAccept(ServerSocket serverSocket) throws IOException {
-        socket = serverSocket.accept();
-        inputStream = socket.getInputStream();
-        outputStream = socket.getOutputStream();
+    public Player() {
+        name = "test_name";
         cards = new HashMap<>();
         cards.put("1", 3);
         cards.put("2", 2);
         cards.put("3", 1);
     }
 
+    public Player(String name) {
+        this.name = name;
+        cards = new HashMap<>();
+        cards.put("1", 3);
+        cards.put("2", 2);
+        cards.put("3", 1);
+    }
+
+    public void waitAccept(ServerSocket serverSocket) throws IOException {
+        socket = serverSocket.accept();
+        inputStream = socket.getInputStream();
+        outputStream = socket.getOutputStream();
+    }
+
     //отправка состояния игры от пользователя
     public void send(Game game) {
         Gson gson = new Gson();
         Gameboard gameboard = new Gameboard();
+        gameboard.setPlayerFirstCards(game.getPlayerFirst().getCards());
+        gameboard.setPlayerSecondCards(game.getPlayerSecond().getCards());
+        gameboard.setCurPlayer(game.getCurPlayer().getName());
+        if (game.getLastCard() != null)
+            gameboard.setLastCard(game.getLastCard());
+        if (game.getBoardCard() != null)
+            gameboard.setBoardCard(game.getBoardCard());
         gameboard.setCards(game.getBoardCards());
         Messaging.writeBytes(outputStream, gson.toJson(gameboard));
     }
 
-    //тестовая отправка мапы в джейсоне
-    public void send() {
+    //отправка состояния игры от пользователя
+    public void sendPosition(String position) {
         Gson gson = new Gson();
-        Gameboard gameboard = new Gameboard();
-        gameboard.setCards(cards);
-        System.out.println(gson.toJson(gameboard));
-        Messaging.writeBytes(outputStream, gson.toJson(gameboard));
+        Position name = new Position(position);
+        Messaging.writeBytes(outputStream, gson.toJson(name));
     }
 
-    public Player() {
+    //получение хода с клиента
+    public Move readIfActive(String activePlayer) {
+        if (name.equalsIgnoreCase(activePlayer)) {
+            String message = Messaging.readBytes(inputStream);
+            Gson gson = new Gson();
+
+            /** логируем ходы игроков*/
+            logInfo(gson.fromJson(message, Move.class));
+
+            return gson.fromJson(message, Move.class);
+        }
+        return null;
+    }
+
+    public void logInfo(Move move) {
+        System.out.print("Игрок: " + name);
+        if (move.isBelieve())
+            System.out.print(" поверил другому игроку \n");
+        else if (move.getToldCard() != null) {
+            System.out.println("Назвал карту: " + move.getToldCard() + "Положил карту: " + move.getCard());
+        } else
+            System.out.println("Положил карту: " + move.getCard());
+    }
+
+    public void decreaseCards(String type) {
+        int count = cards.getOrDefault(type, 0);
+        cards.put(type, count - 1);
+    }
+
+    public void increaseCards(Map<String, Integer> boardCards) {
+        boardCards.forEach((type, number) -> {
+            int count = cards.getOrDefault(type, 0);
+            cards.put(type, count + number);
+        });
 
     }
 
-    public Player(String name) {
-        this.name = name;
-    }
 
 
     //положить карту на стол
