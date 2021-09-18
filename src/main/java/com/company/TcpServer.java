@@ -1,5 +1,6 @@
 package com.company;
 
+import com.company.messages.Gameboard;
 import com.company.messages.Move;
 
 import java.io.IOException;
@@ -45,6 +46,11 @@ public class TcpServer {
                     game.process(playerSecond.readIfActive(game.getCurPlayer().getName()));
                 else
                     game.process(move);
+                String winner = game.getWinner();
+                if (winner.equalsIgnoreCase("1") || winner.equalsIgnoreCase("2")) {
+                    System.out.println("Победил игрок : " + winner);
+                    break;
+                }
             }
 
         } catch (IOException e) {
@@ -53,4 +59,6 @@ public class TcpServer {
         }
         serverSocket.accept();
     }
+
+
 }

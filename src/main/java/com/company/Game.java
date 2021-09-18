@@ -1,5 +1,6 @@
 package com.company;
 
+import com.company.messages.Gameboard;
 import com.company.messages.Move;
 
 import java.util.HashMap;
@@ -88,6 +89,28 @@ public class Game {
             curPlayer = playerSecond;
         else
             curPlayer = playerFirst;
+    }
+
+    public String getWinner() {
+        boolean isPlayerFirstWin = true;
+        boolean isPlayerSecondWin = true;
+        for (Integer number : playerFirst.getCards().values()) {
+            if (number > 0) {
+                isPlayerFirstWin = false;
+                break;
+            }
+        }
+        for (Integer number : playerSecond.getCards().values()) {
+            if (number > 0) {
+                isPlayerSecondWin = false;
+                break;
+            }
+        }
+        if (isPlayerFirstWin)
+            return "1";
+        else if (isPlayerSecondWin)
+            return "2";
+        else return "0";
     }
 
     public Map<String, Integer> getBoardCards() {
