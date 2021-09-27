@@ -45,15 +45,7 @@ public class Player {
     //отправка состояния игры от пользователя
     public void send(Game game) {
         Gson gson = new Gson();
-        Gameboard gameboard = new Gameboard();
-        gameboard.setPlayerFirstCards(game.getPlayerFirst().getCards());
-        gameboard.setPlayerSecondCards(game.getPlayerSecond().getCards());
-        gameboard.setCurPlayer(game.getCurPlayer().getName());
-        if (game.getLastCard() != null)
-            gameboard.setLastCard(game.getLastCard());
-        if (game.getBoardCard() != null)
-            gameboard.setBoardCard(game.getBoardCard());
-        gameboard.setCards(game.getBoardCards());
+        Gameboard gameboard = new Gameboard(game);
         Messaging.writeBytes(outputStream, gson.toJson(gameboard));
     }
 
@@ -100,7 +92,6 @@ public class Player {
         });
 
     }
-
 
 
     //положить карту на стол

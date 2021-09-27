@@ -2,12 +2,29 @@ package com.company;
 
 import com.company.messages.Gameboard;
 import com.company.messages.Move;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonReader;
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.ValidationException;
+import org.everit.json.schema.Validator;
+import org.everit.json.schema.loader.SchemaLoader;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Game {
-
+    private static final String SAVEFILE = "save.json";
     private static final Integer ZERO = 0;
     private Player curPlayer;
     private String lastCard;
@@ -19,6 +36,7 @@ public class Game {
     public Game(Player playerFirst, Player playerSecond) {
         this.playerFirst = playerFirst;
         this.playerSecond = playerSecond;
+        this.curPlayer = playerFirst;
         boardCards = new HashMap<>();
         boardCards.put("1", 0);
         boardCards.put("2", 0);
@@ -28,7 +46,6 @@ public class Game {
     /**
      * подсветка хода игрока
      */
-    //TODO добавить проверку по нику
     public void process(Move move) {
         if (move.isBelieve()) {
             lastCard = move.getCard();
@@ -37,14 +54,12 @@ public class Game {
             //увеличиваем число карт на столе
             int count = boardCards.getOrDefault(move.getCard(), 0);
             boardCards.put(move.getCard(), count + 1);
-            //TODO проверка какой пользователь сходил
             if (curPlayer.equals(playerFirst))
                 playerFirst.decreaseCards(move.getCard());
             else
                 playerSecond.decreaseCards(move.getCard());
 
         } else {
-            //TODO проверка какой пользователь сходил
             if (move.getCard().equalsIgnoreCase(boardCard)) {
                 if (curPlayer.equals(playerFirst))
                     playerFirst.increaseCards(boardCards);
@@ -60,6 +75,18 @@ public class Game {
 
         }
         changeCurPlayer();
+    }
+
+    public void save() {
+        Gameboard gameboard = new Gameboard(this);
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try {
+            try (Writer writer = Files.newBufferedWriter(Paths.get(SAVEFILE))) {
+                gson.toJson(gameboard, writer);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -113,6 +140,92 @@ public class Game {
         else return "0";
     }
 
+    /**
+     * если с сейвом все нормально и он не загружен после конца игры то его данные присваиваем пользователям
+     */
+    public boolean isSaveGood() throws ValidationException, FileNotFoundException {
+        try {
+            JSONObject jsonSchema = new JSONObject(
+                    new JSONTokener(new FileReader("schema.json")));
+            JSONObject jsonSubject = new JSONObject(
+                    new JSONTokener(new FileReader("save.json")));
+            Schema schema = SchemaLoader.load(jsonSchema);
+            schema.validate(jsonSubject);
+            Validator validator = Validator.builder()
+                    .build();
+            validator.performValidation(schema, jsonSubject);
+            Gson gson = new Gson();
+            JsonReader reader = new JsonReader(new FileReader("save.json"));
+            Gameboard gameboard = gson.fromJson(reader, Gameboard.class);
+            reader.close();
+            if (!validation(gameboard)) {
+                System.out.println("VALIDATION ERROR");
+                return false;
+            }
+            System.out.println("SUCCESSFUL VALIDATION");
+            return !gameboard.isWinner();
+
+        } catch (ValidationException e) {
+            System.out.println(e.getMessage());
+            e.getCausingExceptions().stream()
+                    .map(ValidationException::getMessage)
+                    .forEach(System.out::println);
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * загрузка сейва из файла
+     */
+    public void loadSave() {
+        Gson gson = new Gson();
+        JsonReader reader = null;
+        try {
+            reader = new JsonReader(new FileReader("save.json"));
+            Gameboard gameboard = gson.fromJson(reader, Gameboard.class);
+            reader.close();
+            if (gameboard.getCurPlayer().equalsIgnoreCase("1"))
+                this.curPlayer = playerFirst;
+            else
+                this.curPlayer = playerSecond;
+            this.playerFirst.setCards(gameboard.getPlayerFirstCards());
+            this.playerSecond.setCards(gameboard.getPlayerSecondCards());
+            this.boardCards = gameboard.getCards();
+            this.lastCard = gameboard.getLastCard();
+            this.boardCard = gameboard.getBoardCard();
+            System.out.println("ИГРА БЫЛА ЗАГРУЖЕНА ИЗ СОХРАНЕНИЯ");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean validation(Gameboard gameboard) {
+        List<String> types = List.of("1", "2");
+        List<String> typeCard = List.of("1", "2", "3");
+        AtomicBoolean validation = new AtomicBoolean(true);
+        if (!types.contains(gameboard.getCurPlayer()) || !typeCard.contains(gameboard.getBoardCard()) || !typeCard.contains(gameboard.getLastCard()))
+            return false;
+        gameboard.getCards().forEach((cardType, number) -> {
+            if (!typeCard.contains(cardType)) {
+                validation.set(false);
+            }
+        });
+        gameboard.getPlayerFirstCards().forEach((cardType, number) -> {
+            if (!typeCard.contains(cardType)) {
+                validation.set(false);
+            }
+        });
+        gameboard.getPlayerSecondCards().forEach((cardType, number) -> {
+            if (!typeCard.contains(cardType)) {
+                validation.set(false);
+            }
+        });
+        return validation.get();
+    }
+
     public Map<String, Integer> getBoardCards() {
         return boardCards;
     }
@@ -160,5 +273,6 @@ public class Game {
     public void setBoardCard(String boardCard) {
         this.boardCard = boardCard;
     }
+
 
 }

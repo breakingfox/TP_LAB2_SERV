@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "curPlayer": {
+      "type": "string"
+    },
+    "lastCard": {
+      "type": "string"
+    },
+    "boardCard": {
+      "type": "string"
+    },
+    "cards": {
+      "type": "object",
+      "properties": {
+        "1": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 6
+        },
+        "2": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "3": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        }
+      },
+      "required": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    "playerFirstCards": {
+      "type": "object",
+      "properties": {
+        "1": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 6
+        },
+        "2": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "3": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        }
+      },
+      "required": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    "playerSecondCards": {
+      "type": "object",
+      "properties": {
+        "1": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 6
+        },
+        "2": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "3": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        }
+      },
+      "required": [
+        "1",
+        "2",
+        "3"
+      ]
+    }
+  },
+  "required": [
+    "curPlayer",
+    "lastCard",
+    "boardCard",
+    "cards",
+    "playerFirstCards",
+    "playerSecondCards"
+  ]
+}

@@ -1,5 +1,7 @@
 package com.company.messages;
 
+import com.company.Game;
+
 import java.util.Map;
 
 public class Gameboard {
@@ -10,6 +12,37 @@ public class Gameboard {
     private Map<String, Integer> playerFirstCards;
     private Map<String, Integer> playerSecondCards;
 
+    public Gameboard() {
+    }
+
+    public Gameboard(Game game) {
+        this.setPlayerFirstCards(game.getPlayerFirst().getCards());
+        this.setPlayerSecondCards(game.getPlayerSecond().getCards());
+        this.setCurPlayer(game.getCurPlayer().getName());
+        if (game.getLastCard() != null)
+            this.setLastCard(game.getLastCard());
+        if (game.getBoardCard() != null)
+            this.setBoardCard(game.getBoardCard());
+        this.setCards(game.getBoardCards());
+    }
+
+    public boolean isWinner() {
+        boolean isPlayerFirstWin = true;
+        boolean isPlayerSecondWin = true;
+        for (Integer number : playerFirstCards.values()) {
+            if (number > 0) {
+                isPlayerFirstWin = false;
+                break;
+            }
+        }
+        for (Integer number : playerSecondCards.values()) {
+            if (number > 0) {
+                isPlayerSecondWin = false;
+                break;
+            }
+        }
+        return (isPlayerFirstWin || isPlayerSecondWin);
+    }
 
     public String getCurPlayer() {
         return curPlayer;

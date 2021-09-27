@@ -1,6 +1,5 @@
 package com.company;
 
-import com.company.messages.Gameboard;
 import com.company.messages.Move;
 
 import java.io.IOException;
@@ -13,9 +12,7 @@ public class TcpServer {
     public static void main(String[] args) throws IOException {
 
         int port = DEFAULT_PORT;
-
-
-        /** Создаем серверный сокет на полученном порту */
+        /** Создаем серверный сокет на данном порту */
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(port);
@@ -26,14 +23,12 @@ public class TcpServer {
             playerFirst.sendPosition("1");
             playerSecond.waitAccept(serverSocket);
             playerSecond.sendPosition("2");
-
-            /** пока что имя пользователя это его номер порта */
-
             Game game = new Game(playerFirst, playerSecond);
-            game.setCurPlayer(playerFirst);
-            //основной цикл программы с игрой
-            System.out.println(game.getCurPlayer().getName());
 
+            if (game.isSaveGood()) {
+                game.loadSave();
+            }
+            //основной цикл программы с игрой
             while (!playerFirst.getSocket().isClosed() && !playerSecond.getSocket().isClosed()) {
                 game.logInfo();
                 //отправили сообщение
@@ -47,8 +42,11 @@ public class TcpServer {
                 else
                     game.process(move);
                 String winner = game.getWinner();
+                game.save();
                 if (winner.equalsIgnoreCase("1") || winner.equalsIgnoreCase("2")) {
                     System.out.println("Победил игрок : " + winner);
+                    playerFirst.send(game);
+                    playerSecond.send(game);
                     break;
                 }
             }
@@ -56,8 +54,10 @@ public class TcpServer {
         } catch (IOException e) {
             System.out.println("Порт занят: " + port);
             System.exit(-1);
+        } catch (NullPointerException e){
+            System.out.println("\nПользователи отключились от игры");
         }
-        serverSocket.accept();
+//        serverSocket.accept();
     }
 
 
