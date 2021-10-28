@@ -11,12 +11,10 @@ public class TcpServer {
 
     public static void main(String[] args) throws IOException {
 
-        int port = DEFAULT_PORT;
-        /** Создаем серверный сокет на данном порту */
         ServerSocket serverSocket = null;
         try {
-            serverSocket = new ServerSocket(port);
-            System.out.println("SERVER STARTED");
+            serverSocket = new ServerSocket(DEFAULT_PORT);
+            System.out.println("Запуск сервера");
             Player playerFirst = new Player("1");
             Player playerSecond = new Player("2");
             playerFirst.waitAccept(serverSocket);
@@ -24,7 +22,6 @@ public class TcpServer {
             playerSecond.waitAccept(serverSocket);
             playerSecond.sendPosition("2");
             Game game = new Game(playerFirst, playerSecond);
-
             if (game.isSaveGood()) {
                 game.loadSave();
             }
@@ -32,9 +29,10 @@ public class TcpServer {
             while (!playerFirst.getSocket().isClosed() && !playerSecond.getSocket().isClosed()) {
                 game.logInfo();
                 //отправили сообщение
+
                 playerFirst.send(game);
                 playerSecond.send(game);
-                System.out.println("ОТПРАВИЛИ ИГРОКАМ");
+                System.out.println("Отправили игрокам текущее состояние игры");
                 //получаем сообщение с клиента
                 Move move = playerFirst.readIfActive(game.getCurPlayer().getName());
                 if (move == null)
@@ -52,9 +50,9 @@ public class TcpServer {
             }
 
         } catch (IOException e) {
-            System.out.println("Порт занят: " + port);
+            System.out.println("Порт занят: " + DEFAULT_PORT);
             System.exit(-1);
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
             System.out.println("\nПользователи отключились от игры");
         }
 //        serverSocket.accept();

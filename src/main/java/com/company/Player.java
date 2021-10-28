@@ -1,6 +1,6 @@
 package com.company;
 
-import com.company.messages.Gameboard;
+import com.company.messages.GameMsg;
 import com.company.messages.Move;
 import com.company.messages.Position;
 import com.google.gson.Gson;
@@ -15,25 +15,20 @@ import java.util.Map;
 
 public class Player {
     private String name;
-    private Map<String, Integer> cards;
+
+
+    private String strength;
     private OutputStream outputStream;
     private InputStream inputStream;
     private Socket socket;
 
     public Player() {
-        name = "test_name";
-        cards = new HashMap<>();
-        cards.put("1", 3);
-        cards.put("2", 2);
-        cards.put("3", 1);
+        strength = "";
     }
 
     public Player(String name) {
         this.name = name;
-        cards = new HashMap<>();
-        cards.put("1", 3);
-        cards.put("2", 2);
-        cards.put("3", 1);
+        strength = "";
     }
 
     public void waitAccept(ServerSocket serverSocket) throws IOException {
@@ -45,8 +40,8 @@ public class Player {
     //отправка состояния игры от пользователя
     public void send(Game game) {
         Gson gson = new Gson();
-        Gameboard gameboard = new Gameboard(game);
-        Messaging.writeBytes(outputStream, gson.toJson(gameboard));
+        GameMsg message = new GameMsg(game);
+        Messaging.writeBytes(outputStream, gson.toJson(message));
     }
 
     //отправка состояния игры от пользователя
@@ -72,33 +67,19 @@ public class Player {
 
     public void logInfo(Move move) {
         System.out.print("Игрок: " + name);
-        if (move.isBelieve())
-            System.out.print(" поверил другому игроку \n");
-        else if (move.getToldCard() != null) {
-            System.out.println("Назвал карту: " + move.getToldCard() + "Положил карту: " + move.getCard());
-        } else
-            System.out.println("Положил карту: " + move.getCard());
-    }
-
-    public void decreaseCards(String type) {
-        int count = cards.getOrDefault(type, 0);
-        cards.put(type, count - 1);
-    }
-
-    public void increaseCards(Map<String, Integer> boardCards) {
-        boardCards.forEach((type, number) -> {
-            int count = cards.getOrDefault(type, 0);
-            cards.put(type, count + number);
-        });
-
+        System.out.println("Добавил силу " + move.getStrength() + "в свою армию");
     }
 
 
-    //положить карту на стол
-    public void put(String type) {
 
+
+    public String getStrength() {
+        return strength;
     }
 
+    public void setStrength(String strength) {
+        this.strength = strength;
+    }
 
     public String getName() {
         return name;
@@ -106,14 +87,6 @@ public class Player {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Map<String, Integer> getCards() {
-        return cards;
-    }
-
-    public void setCards(Map<String, Integer> cards) {
-        this.cards = cards;
     }
 
     public OutputStream getOutputStream() {

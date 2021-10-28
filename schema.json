@@ -3,96 +3,21 @@
   "type": "object",
   "properties": {
     "curPlayer": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 1
     },
-    "lastCard": {
-      "type": "string"
+    "playerFirst": {
+      "type": "string",
+      "maxLength": 8
     },
-    "boardCard": {
-      "type": "string"
-    },
-    "cards": {
-      "type": "object",
-      "properties": {
-        "1": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 6
-        },
-        "2": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 4
-        },
-        "3": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 2
-        }
-      },
-      "required": [
-        "1",
-        "2",
-        "3"
-      ]
-    },
-    "playerFirstCards": {
-      "type": "object",
-      "properties": {
-        "1": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 6
-        },
-        "2": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 4
-        },
-        "3": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 2
-        }
-      },
-      "required": [
-        "1",
-        "2",
-        "3"
-      ]
-    },
-    "playerSecondCards": {
-      "type": "object",
-      "properties": {
-        "1": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 6
-        },
-        "2": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 4
-        },
-        "3": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 2
-        }
-      },
-      "required": [
-        "1",
-        "2",
-        "3"
-      ]
+    "playerSecond": {
+      "type": "string",
+      "maxLength": 8
     }
   },
   "required": [
     "curPlayer",
-    "lastCard",
-    "boardCard",
-    "cards",
-    "playerFirstCards",
-    "playerSecondCards"
+    "playerFirst",
+    "playerSecond"
   ]
 }
